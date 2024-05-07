@@ -1,0 +1,10 @@
+PyMuPDF==1.19.6
+keybert==0.8.4
+matplotlib==3.8.4
+nltk==3.8.1
+numpy==1.26.4
+pandas==2.2.2
+Requests==2.31.0
+scikit_learn==1.4.2
+sentence_transformers==2.7.0
+tqdm==4.66.2
