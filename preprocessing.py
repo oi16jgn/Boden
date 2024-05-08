@@ -119,6 +119,7 @@ def load_applicants():
 
 def prepare_applicant_data():
     df = load_applicants()
+    df = df[:15]
     df = df.dropna(subset=['CV'])
 
     tqdm.pandas(desc="Downloading and Extracting CV")

@@ -1,4 +1,4 @@
-fitz==0.0.1.dev2
+PyMuPDF
 keybert==0.8.4
 nltk==3.8.1
 numpy==1.26.4
