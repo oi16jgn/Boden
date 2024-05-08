@@ -8,6 +8,7 @@ from nltk.corpus import stopwords
 from tqdm import tqdm
 
 
+
 def download_pdf(url, directory="CV"):
     response = requests.get(url)
     if response.status_code == 200:
@@ -100,14 +101,14 @@ def prepare_company_data():
 
     relevant_columns = ['Branschnamn', 'Specifikt yrkesområde']
     df['Text'] = df.apply(combine_company_text, axis=1)
-    df.drop(columns=relevant_columns, inplace=True)
+    df.drop(columns='Specifikt yrkesområde', inplace=True)
 
     return df
 
 
 def extract_keywords(description, model, stop_words):
-    return model.extract_keywords(description, keyphrase_ngram_range=(1, 2), use_mmr='true', diversity=0.3,
-                                  stop_words=stop_words)
+    return model.extract_keywords(description, keyphrase_ngram_range=(1, 3), stop_words=stop_words, top_n = 10,
+                                  use_mmr = True, diversity = 0.3)
 
 
 def load_applicants():
@@ -119,16 +120,17 @@ def load_applicants():
 
 def prepare_applicant_data():
     df = load_applicants()
-    df = df[:15]
+    df = df[:20]
     df = df.dropna(subset=['CV'])
 
     tqdm.pandas(desc="Downloading and Extracting CV")
     df['CV Text'] = df.progress_apply(
         lambda row: download_and_extract_text_from_cv(row) if pd.notna(row['CV']) and row['CV'].endswith(
             '.pdf') else pd.NA, axis=1)
-
+    
+    df['CV Text'] = df['CV Text'].str.replace('\d+', '', regex=True)
     df.dropna(subset=['CV Text'], inplace=True)
-
+    
     df_kw = df.copy()
 
     kw_model = KeyBERT('paraphrase-multilingual-mpnet-base-v2')

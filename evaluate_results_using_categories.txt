@@ -1,0 +1,36 @@
+# psuedo
+static max_matches = 0
+entries = all entries and their best matches
+
+
+total_amount = get_total_matches(entries)
+
+amount = 0
+
+for entry in df
+    i=0
+    While(1)
+        if check_match(entry, company[i])
+            amount++
+            i++
+        else
+            break
+
+print('amount: ' + amount)
+print('Total amount: ' + total_amount)
+
+def get_total_matches()     
+    amount = 0
+    for entry in df
+        for company in comanies
+            if check_match(entry, company)
+                amount++
+            else
+                break
+    return amount
+
+def check_match(entry, company)
+    for title in entry['titles'] 
+        if title is in company['titles']
+            return true
+    return false

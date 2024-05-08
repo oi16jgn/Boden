@@ -9,6 +9,11 @@ def main():
     companies = preprocessing.prepare_company_data()
 
     save_as_n_grams(applicants, applicants_kw, companies)
+
+    applicants = applicants.drop(columns=['ngrams'])
+    applicants_kw = applicants_kw.drop(columns=['ngrams'])
+    companies = companies.drop(columns=['ngrams'])
+
     save_as_embeddings(applicants, applicants_kw, companies)
 
 
@@ -22,29 +27,24 @@ def save_as_embeddings(applicants, applicants_kw, companies):
     print('Encoding companies:')
     company_embeddings = model.encode(companies['Text'].tolist(), show_progress_bar=True)
 
-    applicant_embeddings_df = pd.DataFrame({
-        'id': applicants['Submission ID'],
-        'embeddings': list(applicant_embeddings)
-    })
-    applicant_kw_df = pd.DataFrame({
-        'id': applicants['Submission ID'],
-        'embeddings': list(applicant_kw)
-    })
-    company_embeddings_df = pd.DataFrame({
-        'id': companies['Submission ID'].astype(str) + ' ' + companies['Namn på företaget'],
-        'embeddings': list(company_embeddings)
-    })
+    applicants['embeddings'] = list(applicant_embeddings)
+    applicants_kw['embeddings'] = list(applicant_kw)
+    companies['embeddings'] = list(company_embeddings)
+
+    applicants.info()
+    applicants_kw.info()
+    companies.info()
 
     applicant_embeddings_path = os.path.join('..', 'text representation', 'applicant_sentence_embeddings.pkl')
-    applicant_embeddings_df.to_pickle(applicant_embeddings_path)
+    applicants.to_pickle(applicant_embeddings_path)
     print('Applicant embeddings saved to: applicant_sentence_embeddings.pkl')
 
     applicant_kw_path = os.path.join('..', 'text representation', 'applicant_kw_embeddings.pkl')
-    applicant_kw_df.to_pickle(applicant_kw_path)
+    applicants_kw.to_pickle(applicant_kw_path)
     print('Applicant embeddings using keywords saved to: applicant_kw_embeddings.pkl')
 
     company_embeddings_path = os.path.join('..', 'text representation', 'company_sentence_embeddings.pkl')
-    company_embeddings_df.to_pickle(company_embeddings_path)
+    companies.to_pickle(company_embeddings_path)
     print('Company embeddings saved to: company_sentence_embeddings.pkl')
 
 
@@ -56,29 +56,20 @@ def save_as_n_grams(applicants, applicants_kw, companies):
     print('Generating n-grams for companies:')
     company_ngrams = text_to_ngram_vector(companies['Text'].tolist(), n=3)
 
-    applicant_ngrams_df = pd.DataFrame({
-        'id': applicants['Submission ID'],
-        'ngrams': applicant_ngrams
-    })
-    applicant_kw_ngrams_df = pd.DataFrame({
-        'id': applicants_kw['Submission ID'],
-        'ngrams': applicant_kw_ngrams
-    })
-    company_ngrams_df = pd.DataFrame({
-        'id': companies['Submission ID'].astype(str) + ' ' + companies['Namn på företaget'],
-        'ngrams': company_ngrams
-    })
+    applicants['ngrams'] = applicant_ngrams
+    applicants_kw['ngrams'] = applicant_kw_ngrams
+    companies['ngrams'] = company_ngrams
 
     applicant_ngram_path = os.path.join('..', 'text representation', 'applicant_ngrams.pkl')
-    applicant_ngrams_df.to_pickle(applicant_ngram_path)
+    applicants.to_pickle(applicant_ngram_path)
     print('Applicant n-grams saved to: applicant_ngrams.pkl')
 
     applicant_kw_ngram_path = os.path.join('..', 'text representation', 'applicant_kw_ngrams.pkl')
-    applicant_kw_ngrams_df.to_pickle(applicant_kw_ngram_path)
+    applicants_kw.to_pickle(applicant_kw_ngram_path)
     print('Applicant n-grams using keywords saved to: applicant_kw_ngrams.pkl')
 
     company_ngram_path = os.path.join('..', 'text representation', 'company_ngrams.pkl')
-    company_ngrams_df.to_pickle(company_ngram_path)
+    companies.to_pickle(company_ngram_path)
     print('Company n-grams saved to: company_ngrams.pkl')
 
 
