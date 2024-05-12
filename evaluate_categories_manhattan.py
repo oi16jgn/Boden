@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import manhattan_distances
+
 
 industries = [
     "Administration, ekonomi, juridik", "Bygg och anläggning", "Chefer och verksamhetsledare",
@@ -36,13 +37,13 @@ def get_top_matches(applicants_df, companies_df, option):
     applicant_embeddings = np.stack(applicants_df[option].values)
     company_embeddings = np.stack(companies_df[option].values)
 
-    similarity_matrix = cosine_similarity(applicant_embeddings, company_embeddings)
+    distance_matrix = manhattan_distances(applicant_embeddings, company_embeddings)
 
     top_20_indices = []
     applicant_ids = []
 
-    for idx, similarities in enumerate(similarity_matrix):
-        top_indices = np.argsort(similarities)[-20:][::-1]
+    for idx, distances in enumerate(distance_matrix):
+        top_indices = np.argsort(distances)[:20]  # Sort by smallest distance first
 
         top_20_indices.append(companies_df['Submission ID'].iloc[top_indices].values.tolist())
         applicant_ids.append(applicants_df['Submission ID'].iloc[idx])
@@ -64,10 +65,10 @@ def main():
     applicant_kw_result_df = get_top_matches(applicants_kw_df, companies_df, 'embeddings')
 
     total = total_matches(applicants_df, companies_df)
-    print(total)
+    print("Total possible matches:", total)
 
     result_1 = amount_of_matches(applicants_df, companies_df, applicant_result_df)
-    result_2 = amount_of_matches(applicants_df, companies_df, applicant_kw_result_df)
+    result_2 = amount_of_matches(applicants_kw_df, companies_df, applicant_kw_result_df)
     result_1 = result_1 / total
     result_2 = result_2 / total
     print(f"Sentence embeddings result on whole CV: {result_1:.4f}")
@@ -86,6 +87,7 @@ def main():
     result_2 = result_2 / total
     print(f"n-grams result on whole CV: {result_1:.4f}")
     print(f"n-grams result on keywords of CV: {result_2:.4f}")
+
 
 
 def total_matches(applicants_df, companies_df):

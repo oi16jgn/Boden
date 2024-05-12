@@ -8,7 +8,6 @@ from nltk.corpus import stopwords
 from tqdm import tqdm
 
 
-
 def download_pdf(url, directory="CV"):
     response = requests.get(url)
     if response.status_code == 200:
@@ -73,6 +72,7 @@ def load_companies():
     file_path = os.path.join('..', 'data', 'arbetsgivare.csv')
     df = pd.read_csv(file_path)
     df.columns = df.columns.str.strip()
+    df.set_index('Submission ID', inplace=True, drop=False)
     return df
 
 
@@ -107,30 +107,30 @@ def prepare_company_data():
 
 
 def extract_keywords(description, model, stop_words):
-    return model.extract_keywords(description, keyphrase_ngram_range=(1, 3), stop_words=stop_words, top_n = 10,
-                                  use_mmr = True, diversity = 0.3)
+    return model.extract_keywords(description, keyphrase_ngram_range=(1, 3), stop_words=stop_words, top_n=10,
+                                  use_mmr=True, diversity=0.5)
 
 
 def load_applicants():
     file_path = os.path.join('..', 'data', 'arbete-cv.csv')
     df = pd.read_csv(file_path)
     df.columns = df.columns.str.strip()
+    df.set_index('Submission ID', inplace=True, drop=False)
     return df
 
 
 def prepare_applicant_data():
     df = load_applicants()
-    df = df[:20]
     df = df.dropna(subset=['CV'])
 
     tqdm.pandas(desc="Downloading and Extracting CV")
     df['CV Text'] = df.progress_apply(
         lambda row: download_and_extract_text_from_cv(row) if pd.notna(row['CV']) and row['CV'].endswith(
             '.pdf') else pd.NA, axis=1)
-    
+
     df['CV Text'] = df['CV Text'].str.replace('\d+', '', regex=True)
     df.dropna(subset=['CV Text'], inplace=True)
-    
+
     df_kw = df.copy()
 
     kw_model = KeyBERT('paraphrase-multilingual-mpnet-base-v2')

@@ -4,22 +4,21 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 def main():
-    applicants_df = pd.read_pickle('../text representation/applicant_sentence_embeddings.pkl')
-    companies_df = pd.read_pickle('../text representation/company_sentence_embeddings.pkl')
+    applicants_df = pd.read_pickle('../text representation/applicant_ngrams.pkl')
+    companies_df = pd.read_pickle('../text representation/company_ngrams.pkl')
 
-    applicant_embeddings = np.stack(applicants_df['embeddings'].values)
-    company_embeddings = np.stack(companies_df['embeddings'].values)
+    applicant_ngrams = np.stack(applicants_df['ngrams'].values)
+    company_ngrams = np.stack(companies_df['ngrams'].values)
 
-    similarity_matrix = cosine_similarity(applicant_embeddings, company_embeddings)
+    similarity_matrix = cosine_similarity(applicant_ngrams, company_ngrams)
 
     top_20_indices = []
     top_20_scores = []
     applicant_ids = []
 
-    # Find indices and scores of the top 20 similar companies for each applicant
     for idx, similarities in enumerate(similarity_matrix):
-        top_indices = np.argsort(similarities)[-20:][::-1]  # Get indices of top 20 similarities
-        top_scores = similarities[top_indices]  # Get the top 20 similarity scores
+        top_indices = np.argsort(similarities)[-20:][::-1]
+        top_scores = similarities[top_indices]
 
         top_20_indices.append(companies_df['Submission ID'].iloc[top_indices].values.tolist())
         top_20_scores.append(top_scores.tolist())
@@ -37,7 +36,6 @@ def main():
         for company_id, score in zip(row['Top 20 Similar IDs from Companies'], row['Similarity Scores']):
             print(f"\t{score:.4f}, {company_id}")
         print("-" * 20)
-
 
 
 if __name__ == "__main__":
