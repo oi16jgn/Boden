@@ -12,6 +12,39 @@ industries = [
 ]
 
 
+def main():
+    applicants_df = pd.read_pickle('../text representation/applicant_sentence_embeddings.pkl')
+    applicants_kw_df = pd.read_pickle('../text representation/applicant_kw_embeddings.pkl')
+    companies_df = pd.read_pickle('../text representation/company_sentence_embeddings.pkl')
+
+    applicant_result_df = get_top_matches(applicants_df, companies_df, 'embeddings')
+    applicant_kw_result_df = get_top_matches(applicants_kw_df, companies_df, 'embeddings')
+
+    total = total_matches(applicants_df, companies_df)
+    print(total)
+
+    result_1 = amount_of_matches(applicants_df, companies_df, applicant_result_df)
+    result_2 = amount_of_matches(applicants_df, companies_df, applicant_kw_result_df)
+    result_1 = result_1 / total
+    result_2 = result_2 / total
+    print(f"Sentence embeddings result on whole CV: {result_1:.4f}")
+    print(f"Sentence embeddings result on keywords of CV: {result_2:.4f}")
+
+    applicants_df = pd.read_pickle('../text representation/applicant_ngrams.pkl')
+    applicants_kw_df = pd.read_pickle('../text representation/applicant_kw_ngrams.pkl')
+    companies_df = pd.read_pickle('../text representation/company_ngrams.pkl')
+
+    applicant_result_df = get_top_matches(applicants_df, companies_df, 'ngrams')
+    applicant_kw_result_df = get_top_matches(applicants_kw_df, companies_df, 'ngrams')
+
+    result_1 = amount_of_matches(applicants_df, companies_df, applicant_result_df)
+    result_2 = amount_of_matches(applicants_df, companies_df, applicant_kw_result_df)
+    result_1 = result_1 / total
+    result_2 = result_2 / total
+    print(f"n-grams result on whole CV: {result_1:.4f}")
+    print(f"n-grams result on keywords of CV: {result_2:.4f}")
+
+
 def check_match(row_applicant, row_company):
     for industry in industries:
         titles_applicant = row_applicant[industry]
@@ -53,39 +86,6 @@ def get_top_matches(applicants_df, companies_df, option):
     })
 
     return results_df
-
-
-def main():
-    applicants_df = pd.read_pickle('../text representation/applicant_sentence_embeddings.pkl')
-    applicants_kw_df = pd.read_pickle('../text representation/applicant_kw_embeddings.pkl')
-    companies_df = pd.read_pickle('../text representation/company_sentence_embeddings.pkl')
-
-    applicant_result_df = get_top_matches(applicants_df, companies_df, 'embeddings')
-    applicant_kw_result_df = get_top_matches(applicants_kw_df, companies_df, 'embeddings')
-
-    total = total_matches(applicants_df, companies_df)
-    print(total)
-
-    result_1 = amount_of_matches(applicants_df, companies_df, applicant_result_df)
-    result_2 = amount_of_matches(applicants_df, companies_df, applicant_kw_result_df)
-    result_1 = result_1 / total
-    result_2 = result_2 / total
-    print(f"Sentence embeddings result on whole CV: {result_1:.4f}")
-    print(f"Sentence embeddings result on keywords of CV: {result_2:.4f}")
-
-    applicants_df = pd.read_pickle('../text representation/applicant_ngrams.pkl')
-    applicants_kw_df = pd.read_pickle('../text representation/applicant_kw_ngrams.pkl')
-    companies_df = pd.read_pickle('../text representation/company_ngrams.pkl')
-
-    applicant_result_df = get_top_matches(applicants_df, companies_df, 'ngrams')
-    applicant_kw_result_df = get_top_matches(applicants_kw_df, companies_df, 'ngrams')
-
-    result_1 = amount_of_matches(applicants_df, companies_df, applicant_result_df)
-    result_2 = amount_of_matches(applicants_df, companies_df, applicant_kw_result_df)
-    result_1 = result_1 / total
-    result_2 = result_2 / total
-    print(f"n-grams result on whole CV: {result_1:.4f}")
-    print(f"n-grams result on keywords of CV: {result_2:.4f}")
 
 
 def total_matches(applicants_df, companies_df):

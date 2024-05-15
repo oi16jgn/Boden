@@ -15,42 +15,6 @@ ground_truth = {
     1428: [1994, 2692, 2589, 2548, 1337, 948, 696, 1741]
 }
 
-def amount_of_matches(results_df):
-    amount = 0
-    for applicant_id, company_ids in ground_truth.items():
-        if applicant_id in results_df['ID of Applicant'].values:
-            result_row = results_df.loc[results_df['ID of Applicant'] == applicant_id]
-            top_ids = result_row['Top 20 Similar IDs from Companies'].iloc[0]
-            for top_id in top_ids:
-                if top_id in company_ids:
-                    amount += 1
-                else:
-                    break
-    return amount
-
-def get_top_matches(applicants_df, companies_df, option):
-    applicant_embeddings = np.stack(applicants_df[option].values)
-    company_embeddings = np.stack(companies_df[option].values)
-
-    # Compute Manhattan distances
-    distance_matrix = manhattan_distances(applicant_embeddings, company_embeddings)
-
-    top_20_indices = []
-    applicant_ids = []
-
-    for idx, distances in enumerate(distance_matrix):
-        # Get indices of the smallest distances
-        top_indices = np.argsort(distances)[:20]
-
-        top_20_indices.append(companies_df['Submission ID'].iloc[top_indices].values.tolist())
-        applicant_ids.append(applicants_df['Submission ID'].iloc[idx])
-
-    results_df = pd.DataFrame({
-        'ID of Applicant': applicant_ids,
-        'Top 20 Similar IDs from Companies': top_20_indices
-    })
-
-    return results_df
 
 def main():
     applicants_df = pd.read_pickle('../text representation/applicant_sentence_embeddings.pkl')
@@ -83,6 +47,45 @@ def main():
     result_2 = result_2 / total
     print(f"n-grams result on whole CV: {result_1:.4f}")
     print(f"n-grams result on keywords of CV: {result_2:.4f}")
+
+
+def amount_of_matches(results_df):
+    amount = 0
+    for applicant_id, company_ids in ground_truth.items():
+        if applicant_id in results_df['ID of Applicant'].values:
+            result_row = results_df.loc[results_df['ID of Applicant'] == applicant_id]
+            top_ids = result_row['Top 20 Similar IDs from Companies'].iloc[0]
+            for top_id in top_ids:
+                if top_id in company_ids:
+                    amount += 1
+                else:
+                    break
+    return amount
+
+
+def get_top_matches(applicants_df, companies_df, option):
+    applicant_embeddings = np.stack(applicants_df[option].values)
+    company_embeddings = np.stack(companies_df[option].values)
+
+    # Compute Manhattan distances
+    distance_matrix = manhattan_distances(applicant_embeddings, company_embeddings)
+
+    top_20_indices = []
+    applicant_ids = []
+
+    for idx, distances in enumerate(distance_matrix):
+        # Get indices of the smallest distances
+        top_indices = np.argsort(distances)[:20]
+
+        top_20_indices.append(companies_df['Submission ID'].iloc[top_indices].values.tolist())
+        applicant_ids.append(applicants_df['Submission ID'].iloc[idx])
+
+    results_df = pd.DataFrame({
+        'ID of Applicant': applicant_ids,
+        'Top 20 Similar IDs from Companies': top_20_indices
+    })
+
+    return results_df
 
 
 if __name__ == "__main__":

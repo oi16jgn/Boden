@@ -8,7 +8,7 @@ def main():
     applicants, applicants_kw = preprocessing.prepare_applicant_data()
     companies = preprocessing.prepare_company_data()
 
-    create_and_save_n_grams(applicants, applicants_kw, companies)
+    save_as_n_grams(applicants, applicants_kw, companies)
 
     applicants = applicants.drop(columns=['ngrams'])
     applicants_kw = applicants_kw.drop(columns=['ngrams'])
@@ -17,7 +17,7 @@ def main():
     save_as_embeddings(applicants, applicants_kw, companies)
 
 
-def create_and_save_n_grams(applicants, applicants_kw, companies):
+def save_as_n_grams(applicants, applicants_kw, companies):
     all_texts = applicants['CV Text'].tolist() + applicants_kw['CV Nyckelord'].tolist() + companies['Text'].tolist()
     vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(3, 3))
     vectorizer.fit(all_texts)
