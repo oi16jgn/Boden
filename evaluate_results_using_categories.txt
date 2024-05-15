@@ -1,32 +1,28 @@
 # psuedo
-static max_matches = 0
-entries = all entries and their best matches
+entries = all applicants in dataset and their best matches according to similarity measure
+all_companies = all companies in dataset
 
-
-total_amount = get_total_matches(entries)
+total_amount = get_total_matches(entries, all_companies)
 
 amount = 0
 
 for entry in df
-    i=0
-    While(1)
-        if check_match(entry, company[i])
+    for company in entry['top_matches']
+        if check_match(entry, company)
             amount++
-            i++
         else
             break
 
-print('amount: ' + amount)
-print('Total amount: ' + total_amount)
+score = amount / total_matches
 
-def get_total_matches()     
+print(score)
+
+def get_total_matches(entries, all_companies)
     amount = 0
-    for entry in df
-        for company in comanies
+    for entry in entries
+        for company in all_companies
             if check_match(entry, company)
                 amount++
-            else
-                break
     return amount
 
 def check_match(entry, company)

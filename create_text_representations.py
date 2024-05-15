@@ -19,7 +19,7 @@ def main():
 
 def create_and_save_n_grams(applicants, applicants_kw, companies):
     all_texts = applicants['CV Text'].tolist() + applicants_kw['CV Nyckelord'].tolist() + companies['Text'].tolist()
-    vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(1, 3))
+    vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(3, 3))
     vectorizer.fit(all_texts)
 
     applicants['ngrams'] = list(vectorizer.transform(applicants['CV Text'].tolist()).toarray())

@@ -43,7 +43,7 @@ def get_top_matches(applicants_df, companies_df, option):
     applicant_ids = []
 
     for idx, distances in enumerate(distance_matrix):
-        top_indices = np.argsort(distances)[:20]  # Sort by smallest distance first
+        top_indices = np.argsort(distances)[:20]
 
         top_20_indices.append(companies_df['Submission ID'].iloc[top_indices].values.tolist())
         applicant_ids.append(applicants_df['Submission ID'].iloc[idx])
@@ -87,7 +87,6 @@ def main():
     result_2 = result_2 / total
     print(f"n-grams result on whole CV: {result_1:.4f}")
     print(f"n-grams result on keywords of CV: {result_2:.4f}")
-
 
 
 def total_matches(applicants_df, companies_df):
