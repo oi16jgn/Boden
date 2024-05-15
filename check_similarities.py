@@ -17,7 +17,7 @@ def main():
     applicant_ids = []
 
     for idx, similarities in enumerate(similarity_matrix):
-        top_indices = np.argsort(similarities)[-20:][::-1]
+        top_indices = np.argsort(similarities)[-10:][::-1]
         top_scores = similarities[top_indices]
 
         top_20_indices.append(companies_df['Submission ID'].iloc[top_indices].values.tolist())
