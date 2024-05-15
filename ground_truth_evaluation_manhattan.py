@@ -67,14 +67,12 @@ def get_top_matches(applicants_df, companies_df, option):
     applicant_embeddings = np.stack(applicants_df[option].values)
     company_embeddings = np.stack(companies_df[option].values)
 
-    # Compute Manhattan distances
     distance_matrix = manhattan_distances(applicant_embeddings, company_embeddings)
 
     top_20_indices = []
     applicant_ids = []
 
     for idx, distances in enumerate(distance_matrix):
-        # Get indices of the smallest distances
         top_indices = np.argsort(distances)[:20]
 
         top_20_indices.append(companies_df['Submission ID'].iloc[top_indices].values.tolist())
