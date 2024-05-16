@@ -6,6 +6,10 @@ import fitz
 from keybert import KeyBERT
 from nltk.corpus import stopwords
 from tqdm import tqdm
+from langdetect import detect, DetectorFactory
+from langdetect.lang_detect_exception import LangDetectException
+
+DetectorFactory.seed = 0
 
 
 def download_pdf(url, directory="CV"):
@@ -25,10 +29,17 @@ def extract_text_from_pdf(filename):
         text = ""
         for page in doc:
             text += page.get_text()
-        return text
+        return text.lower()
     except Exception as e:
         print(f"Error processing file {filename}: {e}")
         return None
+
+
+def is_swedish(text):
+    try:
+        return detect(text) == 'sv'
+    except LangDetectException:
+        return False
 
 
 def download_and_extract_text_from_cv(row):
@@ -39,13 +50,15 @@ def download_and_extract_text_from_cv(row):
 
     pdf_filename = download_pdf(url, directory)
     if pdf_filename:
-        return extract_text_from_pdf(pdf_filename)
+        text = extract_text_from_pdf(pdf_filename)
+        if text and is_swedish(text):
+            return text
     return None
 
 
 def combine_company_text(row):
-    field = row['Branschnamn'] if pd.notna(row['Branschnamn']) else ''
-    subfield = row['Specifikt yrkesområde'] if pd.notna(row['Specifikt yrkesområde']) else ''
+    field = (row['Branschnamn'] if pd.notna(row['Branschnamn']) else '').lower()
+    subfield = (row['Specifikt yrkesområde'] if pd.notna(row['Specifikt yrkesområde']) else '').lower()
 
     if row['Branschnamn'] == 'Annat (fritext)':
         return f"{subfield}."
@@ -87,8 +100,7 @@ def preprocess_company_data(df):
         'Kropps- och skönhetsvård', 'Kultur, media, design', 'Militärt arbete',
         'Naturbruk', 'Naturvetenskapligt arbete', 'Pedagogiskt arbete',
         'Sanering och renhållning', 'Socialt arbete', 'Säkerhetsarbete',
-        'Tekniskt arbete', 'Transport', 'Branschnamn.1',
-        'Jag har ofta brist på personal inom dessa yrkesområden:'
+        'Tekniskt arbete', 'Transport', 'Branschnamn.1'
     ]
     df['Specifikt yrkesområde'] = df[columns_to_combine].apply(lambda x: '. '.join(x.dropna()), axis=1)
 
@@ -107,8 +119,7 @@ def prepare_company_data():
 
 
 def extract_keywords(description, model, stop_words):
-    return model.extract_keywords(description, keyphrase_ngram_range=(1, 3), stop_words=stop_words, top_n=10,
-                                  use_mmr=True, diversity=0.5)
+    return model.extract_keywords(description, keyphrase_ngram_range=(1, 3), stop_words=stop_words)
 
 
 def load_applicants():

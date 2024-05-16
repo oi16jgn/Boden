@@ -8,18 +8,25 @@ def main():
     applicants, applicants_kw = preprocessing.prepare_applicant_data()
     companies = preprocessing.prepare_company_data()
 
-    save_as_n_grams(applicants, applicants_kw, companies)
-
-    applicants = applicants.drop(columns=['ngrams'])
-    applicants_kw = applicants_kw.drop(columns=['ngrams'])
-    companies = companies.drop(columns=['ngrams'])
-
     save_as_embeddings(applicants, applicants_kw, companies)
+
+    applicants = applicants.drop(columns=['embeddings'])
+    applicants_kw = applicants_kw.drop(columns=['embeddings'])
+    companies = companies.drop(columns=['embeddings'])
+
+    save_as_n_grams(applicants, applicants_kw, companies)
 
 
 def save_as_n_grams(applicants, applicants_kw, companies):
+    companies['Text'] = companies['Text'].apply(clean_text)
+    applicants_kw['CV Nyckelord'] = applicants_kw['CV Nyckelord'].apply(clean_text)
+    applicants['CV Text'] = applicants['CV Text'].apply(clean_text)
+
+    print(companies.loc[1741, 'Text'])
+    print(companies.loc[692, 'Text'])
+
     all_texts = applicants['CV Text'].tolist() + applicants_kw['CV Nyckelord'].tolist() + companies['Text'].tolist()
-    vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(3, 3))
+    vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(1, 3))
     vectorizer.fit(all_texts)
 
     applicants['ngrams'] = list(vectorizer.transform(applicants['CV Text'].tolist()).toarray())
@@ -39,7 +46,14 @@ def save_as_n_grams(applicants, applicants_kw, companies):
     print('Company n-grams saved to: ' + company_ngrams_path)
 
 
+def clean_text(text):
+    return text.replace(',', '').replace('.', '')
+
+
 def save_as_embeddings(applicants, applicants_kw, companies):
+    print(companies.loc[1741, 'Text'])
+    print(companies.loc[692, 'Text'])
+
     model = SentenceTransformer('KBLab/sentence-bert-swedish-cased')
 
     print('Encoding applicants:')
