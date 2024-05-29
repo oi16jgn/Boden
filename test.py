@@ -1,18 +1,30 @@
 import preprocessing
 import pandas as pd
+import matplotlib.pyplot as plt
 
+columns = [
+    'Administration, ekonomi, juridik',
+    'Bygg och anläggning', 'Chefer och verksamhetsledare', 'Data/IT',
+    'Försäljning, inköp, marknadsföring', 'Hantverksyrken',
+    'Hotell, restaurang, storhushåll', 'Hälso- och sjukvård',
+    'Industriell tillverkning', 'Installation, drift, underhåll',
+    'Kropps- och skönhetsvård', 'Kultur, media, design', 'Militärt arbete',
+    'Naturbruk', 'Naturvetenskapligt arbete', 'Pedagogiskt arbete',
+    'Sanering och renhållning', 'Socialt arbete', 'Säkerhetsarbete',
+    'Tekniskt arbete', 'Transport'
+]
 
-def extract_file_format(cv):
-    if pd.notna(cv) and '.' in cv:
-        return cv.split('.')[-1].lower()
-    return pd.NA
+df = preprocessing.load_companies()
 
+non_null_counts = df[columns].notnull().sum()
 
-df = preprocessing.load_applicants()
+non_null_counts_sorted = non_null_counts.sort_values(ascending=False)
 
-df['File Format'] = df['CV'].apply(extract_file_format)
-
-format_counts = df['File Format'].value_counts()
-print(format_counts)
-
-preprocessing.clear_directory('CV')
+plt.figure(figsize=(10, 6))
+non_null_counts_sorted.plot(kind='bar')
+plt.xlabel('Industries')
+plt.ylabel('Amount')
+plt.title('Amount of companies in industries')
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()

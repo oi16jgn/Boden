@@ -1,32 +1,109 @@
 # psuedo
 entries = all applicants in dataset and their best matches according to similarity measure
-all_companies = all companies in dataset
+companies = all companies in dataset
 
-total_amount = get_total_matches(entries, all_companies)
+total_amount = get_total_matches(entries, companies)
 
 amount = 0
 
-for entry in df
+for entry in entries
     for company in entry['top_matches']
         if check_match(entry, company)
             amount++
         else
             break
 
-score = amount / total_matches
+accuracy = amount / total_matches
 
-print(score)
+return accuracy
 
-def get_total_matches(entries, all_companies)
+def get_total_matches(entries, companies)
     amount = 0
     for entry in entries
-        for company in all_companies
+        for company in companies
             if check_match(entry, company)
                 amount++
     return amount
 
 def check_match(entry, company)
-    for title in entry['titles'] 
+    for title in entry['titles']
+        if title is in company['titles']
+            return true
+    return false
+
+# psuedo
+entries = all applicants in dataset and their best matches according to similarity measure
+ground_truth = applicants and their coresponding company matches acocording to ground truth
+total_matches = total matches in ground truth
+
+amount = 0
+
+for entry in entries
+    for company in entry['top_matches']
+        if company in ground_truth['matches'] where id = entry id
+            amount++
+        else
+            break
+
+accuracy = amount / total_matches
+
+print(accuracy)
+
+# psuedo
+entries = all applicants in dataset and their best matches according to similarity measure
+ground_truth = applicants and their coresponding company matches acocording to ground truth
+total_matches = total matches in ground truth
+
+amount = 0
+
+for entry in entries
+    n <- 𝐺[𝑒.id].matches.length
+    𝑡𝑜𝑝 𝑐𝑜𝑚𝑝𝑎𝑛𝑖𝑒𝑠 ← 𝑒.top matches[0 : 4]
+    for match in 𝐺[𝑒.id].matches
+        top_companies = top 4 company matches in entry
+        if match in top_companies
+            amount++
+
+accuracy = amount / total_matches
+
+return accuracy
+
+# psuedo
+entries = all applicants in dataset and their best matches according to similarity measure
+companies = all companies in dataset
+
+total_amount = get_total_matches(entries, companies)
+
+amount = 0
+
+for entry in entries
+    n <- count_matches(e, companies)
+    𝑡𝑜𝑝 𝑐𝑜𝑚𝑝𝑎𝑛𝑖𝑒𝑠 ← 𝑒.top matches[0 : n]
+    for company in top_companies
+        if check_match(entry, company)
+            amount++
+
+accuracy = amount / total_matches
+
+return accuracy
+
+def count_matches(entry, companies)
+    amount = 0
+    for company in companies
+        if check_match(entry, company)
+            amount ++
+    return amount
+
+def get_total_matches(entries, companies)
+    amount = 0
+    for entry in entries
+        for company in companies
+            if check_match(entry, company)
+                amount++
+    return amount
+
+def check_match(entry, company)
+    for title in entry['titles']
         if title is in company['titles']
             return true
     return false
